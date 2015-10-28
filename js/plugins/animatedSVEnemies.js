@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.0
+// Version: 1.05
 //=============================================================================
 
 var Imported = Imported || {};
@@ -14,6 +14,13 @@ Rexal.ASVE = Rexal.ASVE || {};
  *
  * @help
  
+ * @param No Movement
+ * @desc Prevents enemies from moving whenever they perform an action.
+ * @default false
+ 
+ 
+ IF USING YANFLY CORE ENGINE SET ITS PARAMETER "FLASH TARGET" TO TRUE OTHERWISE IT WILL CAUSE AN ERROR.
+ 
  Notetags:
  
  
@@ -24,16 +31,53 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  Sets the enemy to use this motion when attacking.
  
+  SV Weapon: id
+ 
+ "Equips" the enemy with this weapon. Note that the weapon is backwards right now. I'll have a fix asap.
+
+ Ex: SV Weapon: 1
+ 
+ 
  Version Log:
  
  v1 - Initial Version
  
+ v1.05 - Many fixes
+ - Fixed issue with enemies not playing the right animations when more than one enemy is on the screen.
+ - Misc. Fixes that I've forgotten about.
+ - Added SV Weapon, which lets you play a weapon animation(currently backwards). This is not yet compatible with my other script: Sprite Weapons Enhanced.
+ - Added a param that stops enemies from moving.
  */
  
- 
+ Rexal.ASVE.Parameters = PluginManager.parameters('animatedSVEnemies');
+ Rexal.ASVE.NoMovement = eval(String(Rexal.ASVE.Parameters['No Movement']));
   //-----------------------------------------------------------------------------
 // Game_Enemy
 //=============================================================================
+
+	Game_Enemy.prototype.performAttack = function() {
+		
+		Rexal.ASVE.processEnemyNoteTag( $dataEnemies[this._enemyId] );
+		
+			if(Rexal.ASVE._weaponID == 0){this.requestMotion(Rexal.ASVE._motion);
+			return;
+			}
+		
+     var weapon = $dataWeapons[Rexal.ASVE._weaponID];
+    var wtypeId = weapon.wtypeId;
+    var attackMotion = $dataSystem.attackMotions[wtypeId];
+    if (attackMotion) {
+        if (attackMotion.type === 0) {
+            this.requestMotion('thrust');
+        } else if (attackMotion.type === 1) {
+            this.requestMotion('swing');
+        } else if (attackMotion.type === 2) {
+            this.requestMotion('missile');
+        }
+		this.startWeaponAnimation(attackMotion.weaponImageId);
+    }
+};
+
 
 Game_Enemy.prototype.performAction = function(action) {
     Game_Battler.prototype.performAction.call(this, action);
@@ -81,9 +125,6 @@ Game_Enemy.prototype.performVictory = function() {
     }
 };
 
-Game_Enemy.prototype.performAttack = function() {
-            this.requestMotion(Rexal.ASVE._motion);
-};
 
 Game_Enemy.prototype.makeActions = function() {
     Game_Battler.prototype.makeActions.call(this);
@@ -106,6 +147,44 @@ Game_Enemy.prototype.performEscape = function() {
 };
 
   //-----------------------------------------------------------------------------
+// Sprite_WeaponRex
+//=============================================================================
+
+function Sprite_WeaponRex() {
+    this.initialize.apply(this, arguments);
+}
+
+Sprite_WeaponRex.prototype = Object.create(Sprite_Weapon.prototype);
+Sprite_WeaponRex.prototype.constructor = Sprite_WeaponRex;
+
+Sprite_WeaponRex.prototype.loadBitmap = function() {
+	throw new Error("You actually got it to work! Yay!");
+	this.scale.x = -1;
+    var pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
+    if (pageId >= 1) {
+        this.bitmap = ImageManager.loadSystem('Weapons' + pageId);
+    } else {
+        this.bitmap = ImageManager.loadSystem('');
+    }
+
+};
+
+
+Sprite_WeaponRex.prototype.updateFrame = function() { 	
+    if (this._weaponImageId > 0) {
+        var index = (this._weaponImageId - 1) % 12;
+        var w = 96;
+        var h = 64;
+        var sx = (Math.floor(index / 6) * 3 + this._pattern) * w;
+        var sy = Math.floor(index % 6) * h;
+        this.setFrame(-sx, sy, -w, h);
+    } else {
+        this.setFrame(0, 0, 0, 0);
+    }
+};
+
+
+  //-----------------------------------------------------------------------------
 // Sprite_EnemyRex
 //=============================================================================
 
@@ -113,6 +192,33 @@ function Sprite_EnemyRex() {
     this.initialize.apply(this, arguments);
 }
 
+
+ Sprite_EnemyRex.prototype = Object.create(Sprite_Actor.prototype);
+Sprite_EnemyRex.prototype.constructor = Sprite_EnemyRex;
+
+Sprite_EnemyRex.prototype.createWeaponSprite = function() {
+	
+    this._weaponSprite = new Sprite_WeaponRex();
+    this.addChild(this._weaponSprite);
+};
+
+
+Sprite_EnemyRex.prototype.updateSelectionEffect = function() {
+	
+	    var target = this._effectTarget;
+    if (this._battler.isSelected()) {
+        this._selectionEffectCount++;
+        if (this._selectionEffectCount % 30 < 15) {
+            target.setBlendColor([255, 255, 255, 64]);
+        } else {
+            target.setBlendColor([0, 0, 0, 0]);
+        }
+    } else if (this._selectionEffectCount > 0) {
+        this._selectionEffectCount = 0;
+        target.setBlendColor([0, 0, 0, 0]);
+    }
+	
+}
 
  Sprite_EnemyRex.prototype = Object.create(Sprite_Actor.prototype);
 Sprite_EnemyRex.prototype.constructor = Sprite_EnemyRex;
@@ -161,17 +267,26 @@ Sprite_EnemyRex.prototype.updateBitmap = function() {
     }
 };
 
+Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
+	Rexal.ASVE.processEnemyNoteTag($dataEnemies[this._actor._enemyId]);
+    if (this._actor.isWeaponAnimationRequested()) {
+        this._weaponSprite.setup($dataWeapons[Rexal.ASVE._weaponID].wtypeId);
+        this._actor.clearWeaponAnimation();
+    }
+
+};
+
 
 Sprite_EnemyRex.prototype.damageOffsetX = function() {
     return 32;
 };
 
 Sprite_EnemyRex.prototype.stepForward = function() {
-    this.startMove(48, 0, 12);
+   if(!Rexal.ASVE.NoMovement) this.startMove(48, 0, 12);
 };
 
 Sprite_EnemyRex.prototype.stepBack = function() {
-    this.startMove(0, 0, 12);
+   if(!Rexal.ASVE.NoMovement) this.startMove(0, 0, 12);
 };
 
 Sprite_EnemyRex.prototype.retreat = function() {
@@ -230,6 +345,7 @@ Rexal.ASVE.processEnemyNoteTag = function(obj) {
 
 Rexal.ASVE._animated = false;
 Rexal.ASVE._motion = 'thrust';
+Rexal.ASVE._weaponID = 0;
 
 if(obj == null)return;
 		var notedata = obj.note.split(/[\r\n]+/);
@@ -247,6 +363,11 @@ if(obj == null)return;
 		case 'SV Motion' :
         Rexal.ASVE._motion = lines[1].toLowerCase();
 		break;
+		
+		case 'SV Weapon' :
+        Rexal.ASVE._weaponID = parseInt(lines[1]);
+		break;	
+		
 		
 		}
 		
