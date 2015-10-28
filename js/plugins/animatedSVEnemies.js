@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.05
+// Version: 1.06
 //=============================================================================
 
 var Imported = Imported || {};
@@ -33,7 +33,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
   SV Weapon: id
  
- "Equips" the enemy with this weapon. Note that the weapon is backwards right now. I'll have a fix asap.
+ "Equips" the enemy with this weapon. Still a work-in-progress.
 
  Ex: SV Weapon: 1
  
@@ -47,6 +47,12 @@ Rexal.ASVE = Rexal.ASVE || {};
  - Misc. Fixes that I've forgotten about.
  - Added SV Weapon, which lets you play a weapon animation(currently backwards). This is not yet compatible with my other script: Sprite Weapons Enhanced.
  - Added a param that stops enemies from moving.
+ 
+ v1.06 - Yanfly Compatibility Update
+ - Makes this more compatible with Yanfly's scripts.
+ - Still has the Flash Target bug.
+ 
+ 
  */
  
  Rexal.ASVE.Parameters = PluginManager.parameters('animatedSVEnemies');
@@ -93,6 +99,27 @@ Game_Enemy.prototype.performAction = function(action) {
         this.requestMotion('item');
     }
 };
+
+if(Yanfly.YEP_BattleEngineCore)
+{
+
+	Game_Enemy.prototype.spriteWidth = function() {
+    if (Rexal.ASVE._animated) {
+			return this.battler()._mainSprite.width;
+		} else {
+			return 1;
+		}
+};
+
+Game_Enemy.prototype.spriteHeight = function() {
+    if (Rexal.ASVE._animated) {
+			return this.battler()._mainSprite.height;
+		} else {
+			return 1;
+		}
+};
+
+}
 
 Game_Enemy.prototype.performDamage = function() {
     Game_Battler.prototype.performDamage.call(this);
@@ -146,8 +173,10 @@ Game_Enemy.prototype.performEscape = function() {
     }
 };
 
+
+
   //-----------------------------------------------------------------------------
-// Sprite_WeaponRex
+// Sprite_WeaponRex -- This is not functioning right now.
 //=============================================================================
 
 function Sprite_WeaponRex() {
@@ -158,7 +187,6 @@ Sprite_WeaponRex.prototype = Object.create(Sprite_Weapon.prototype);
 Sprite_WeaponRex.prototype.constructor = Sprite_WeaponRex;
 
 Sprite_WeaponRex.prototype.loadBitmap = function() {
-	throw new Error("You actually got it to work! Yay!");
 	this.scale.x = -1;
     var pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
     if (pageId >= 1) {
@@ -195,6 +223,17 @@ function Sprite_EnemyRex() {
 
  Sprite_EnemyRex.prototype = Object.create(Sprite_Actor.prototype);
 Sprite_EnemyRex.prototype.constructor = Sprite_EnemyRex;
+
+if(Imported.YEP_BattleEngineCore)
+{
+	
+Sprite_EnemyRex.prototype.stepFlinch = function() {
+		var flinchX = this.x - this._homeX + Yanfly.Param.BECFlinchDist;
+		this.startMove(-flinchX, 0, 6);
+};
+
+}
+
 
 Sprite_EnemyRex.prototype.createWeaponSprite = function() {
 	
@@ -249,12 +288,27 @@ Sprite_EnemyRex.prototype.setBattler = function(battler) {
     }
 };
 
+if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
+{
 
+	Sprite_EnemyRex.prototype.setActorHome = function(battler) {
+			
+			var x = battler.screenX();
+			var y = battler.screenY();
+			
+			x += Graphics.boxWidth - 816;
+			y += Graphics.boxHeight - 624;
+			    this.setHome(x,y);
+	};
+}
+else
+{
 
 Sprite_EnemyRex.prototype.setActorHome = function(battler) {
     this.setHome(battler.screenX(), battler.screenY());
 };
 
+}
 
 Sprite_EnemyRex.prototype.updateBitmap = function() {
     Sprite_Battler.prototype.updateBitmap.call(this);
@@ -264,6 +318,9 @@ Sprite_EnemyRex.prototype.updateBitmap = function() {
         this._battlerName = name;
         this._mainSprite.bitmap = ImageManager.loadSvActor(name,hue);
 		this._mainSprite.scale.x = -1;
+		this._mainSprite._width = this._mainSprite.bitmap.width;
+		this._mainSprite._height = this._mainSprite.bitmap.height;
+		
     }
 };
 
@@ -281,13 +338,30 @@ Sprite_EnemyRex.prototype.damageOffsetX = function() {
     return 32;
 };
 
+
+
+if(Imported.YEP_BattleEngineCore)
+{
+	
+	Sprite_EnemyRex.prototype.stepForward = function() {
+    this.startMove(Yanfly.Param.BECStepDist, 0, 12);
+};
+
+	
+}
+else
+{
+	
 Sprite_EnemyRex.prototype.stepForward = function() {
    if(!Rexal.ASVE.NoMovement) this.startMove(48, 0, 12);
 };
 
+}
+
 Sprite_EnemyRex.prototype.stepBack = function() {
    if(!Rexal.ASVE.NoMovement) this.startMove(0, 0, 12);
 };
+
 
 Sprite_EnemyRex.prototype.retreat = function() {
     this.startMove(-300, 0, 30);
