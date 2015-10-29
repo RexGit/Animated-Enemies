@@ -23,7 +23,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  Notetags:
  
- 
+  
  [SV Animated]
  Sets the enemy to use the an SV battler. 
 
@@ -33,7 +33,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
   SV Weapon: id
  
- "Equips" the enemy with this weapon. Note that the weapon is backwards right now. I'll have a fix asap.
+ "Equips" the enemy with this weapon.
 
  Ex: SV Weapon: 1
  
@@ -42,7 +42,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  v1 - Initial Version
  
- v1.05 - Many fixes
+ v1.1 - Many fixes
  - Fixed issue with enemies not playing the right animations when more than one enemy is on the screen.
  - Misc. Fixes that I've forgotten about.
  - Added SV Weapon, which lets you play a weapon animation(currently backwards). This is not yet compatible with my other script: Sprite Weapons Enhanced.
@@ -158,7 +158,6 @@ Sprite_WeaponRex.prototype = Object.create(Sprite_Weapon.prototype);
 Sprite_WeaponRex.prototype.constructor = Sprite_WeaponRex;
 
 Sprite_WeaponRex.prototype.loadBitmap = function() {
-	throw new Error("You actually got it to work! Yay!");
 	this.scale.x = -1;
     var pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
     if (pageId >= 1) {
@@ -196,20 +195,6 @@ function Sprite_EnemyRex() {
  Sprite_EnemyRex.prototype = Object.create(Sprite_Actor.prototype);
 Sprite_EnemyRex.prototype.constructor = Sprite_EnemyRex;
 
-<<<<<<< HEAD
-if(Imported.YEP_BattleEngineCore)
-{
-	
-Sprite_EnemyRex.prototype.stepFlinch = function() {
-		var flinchX = this.x - this._homeX + Yanfly.Param.BECFlinchDist;
-		this.startMove(flinchX, 0, 6);
-};
-
-}
-
-
-=======
->>>>>>> parent of 8fa1201... Version 1.06 - Yanfly Compatibility Update 1
 Sprite_EnemyRex.prototype.createWeaponSprite = function() {
 	
     this._weaponSprite = new Sprite_WeaponRex();
