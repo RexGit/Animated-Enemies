@@ -23,7 +23,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  Notetags:
  
-  
+ 
  [SV Animated]
  Sets the enemy to use the an SV battler. 
 
@@ -158,6 +158,7 @@ Sprite_WeaponRex.prototype = Object.create(Sprite_Weapon.prototype);
 Sprite_WeaponRex.prototype.constructor = Sprite_WeaponRex;
 
 Sprite_WeaponRex.prototype.loadBitmap = function() {
+
 	this.scale.x = -1;
     var pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
     if (pageId >= 1) {
