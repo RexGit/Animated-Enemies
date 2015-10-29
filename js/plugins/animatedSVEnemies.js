@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.06
+// Version: 1.061
 //=============================================================================
 
 var Imported = Imported || {};
@@ -51,7 +51,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  v1.06 - Yanfly Compatibility Update
  - Makes this more compatible with Yanfly's scripts.
  - Still has the Flash Target bug.
- 
+ 1.061 - battlers are positioned correctly now
  
  */
  
@@ -293,11 +293,14 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 
 	Sprite_EnemyRex.prototype.setActorHome = function(battler) {
 			
+			var dX = Graphics.boxWidth/816;
+			var dY = Graphics.boxHeight/624;
+	
 			var x = battler.screenX();
 			var y = battler.screenY();
 			
-			x += Graphics.boxWidth - 816;
-			y += Graphics.boxHeight - 624;
+			x*= dX;
+			y*= dY;
 			    this.setHome(x,y);
 	};
 }
