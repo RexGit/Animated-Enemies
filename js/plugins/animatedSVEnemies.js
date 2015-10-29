@@ -229,7 +229,7 @@ if(Imported.YEP_BattleEngineCore)
 	
 Sprite_EnemyRex.prototype.stepFlinch = function() {
 		var flinchX = this.x - this._homeX + Yanfly.Param.BECFlinchDist;
-		this.startMove(-flinchX, 0, 6);
+		this.startMove(flinchX, 0, 6);
 };
 
 }
