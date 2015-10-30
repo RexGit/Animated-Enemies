@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedEnemiesYanflyCompatability.js
-// Version: 1.013b
+// Version: 1.013rc
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies.Yanfly = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.013
+ * @plugindesc Version: 1.013b
  * - Makes animatedSVEnemies compatible with Yanfly's plugins.
  * @author Rexal
  *
@@ -82,7 +82,7 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 			var y = battler.screenY();
 			
 			x*= dX;
-			if(!Rexal.ASVE._float)y*= dY;
+			y*= dY;
 			    this.setHome(x,y);
 	};
 	
@@ -92,7 +92,7 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 			var dY = Graphics.boxHeight/624;
 			
 			x*= dX;
-			y*= dY;
+			if(!Rexal.ASVE._float)y*= dY;
 			
 			this._homeX = x;
 			this._homeY = y;
