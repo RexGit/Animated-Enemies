@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemiesYanflyCompatability.js
-// Version: 1.0
+// Version: 1.01
 //=============================================================================
 
 var Imported = Imported || {};
@@ -17,6 +17,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  Version Log:
  
  v1 - Initial Version
+ v1.01 - got rid of an unnecessary function.
  
  */
  if(Imported.AnimatedSVEnemies){
@@ -98,42 +99,3 @@ if(Imported.YEP_BattleEngineCore)
   //-----------------------------------------------------------------------------
 // Rex Functions
 //=============================================================================
-
-
-Rexal.ASVE.processEnemyNoteTag = function(obj) {
-
-Rexal.ASVE._animated = false;
-Rexal.ASVE._motion = 'thrust';
-Rexal.ASVE._weaponID = 0;
-
-if(obj == null)return;
-		var notedata = obj.note.split(/[\r\n]+/);
-
-		for (var i = 0; i < notedata.length; i++) {
-		var line = notedata[i];
-		var lines = line.split(': ');
-		
-		switch (lines[0]) {
-		
-		case '[SV Animated]' :
-        Rexal.ASVE._animated = true;
-		break;
-		
-		case 'SV Motion' :
-        Rexal.ASVE._motion = lines[1].toLowerCase();
-		break;
-		
-		case 'SV Weapon' :
-        Rexal.ASVE._weaponID = parseInt(lines[1]);
-		break;	
-		
-		
-		}
-		
-			
-		}
-		
-
-};
-
- }

@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.05
+// Version: 1.075 - Deep Breaths
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Lets enemies use animated SV battlers
+ * @plugindesc Lets enemies be animated!
  * @author Rexal
  *
  * @help
@@ -17,6 +17,14 @@ Rexal.ASVE = Rexal.ASVE || {};
  * @param No Movement
  * @desc Prevents enemies from moving whenever they perform an action.
  * @default false
+ 
+ * @param Static Enemies Breathe
+ * @desc Static Enemies have a breathing effect
+ * @default true
+ 
+ * @param AGI Effects Breathing
+ * @desc Enemies with a higher AGI stat will breathe faster.
+ * @default true
  
  
  IF USING YANFLY CORE ENGINE SET ITS PARAMETER "FLASH TARGET" TO TRUE OTHERWISE IT WILL CAUSE AN ERROR.
@@ -37,20 +45,29 @@ Rexal.ASVE = Rexal.ASVE || {};
 
  Ex: SV Weapon: 1
  
+ [No Breath]
+ This enemy doesn't breathe. Useful for golems and evil walls.
+ 
  
  Version Log:
  
  v1 - Initial Version
  
- v1.1 - Many fixes
+ v1.05 - Many fixes
  - Fixed issue with enemies not playing the right animations when more than one enemy is on the screen.
  - Misc. Fixes that I've forgotten about.
  - Added SV Weapon, which lets you play a weapon animation(currently backwards). This is not yet compatible with my other script: Sprite Weapons Enhanced.
  - Added a param that stops enemies from moving.
+ 
+  v1.075 - Deep breaths
+ - Static enemies breathe now!
+ - Added a bunch of stuff to control the breathing. (notetags do not work!) 
  */
  
  Rexal.ASVE.Parameters = PluginManager.parameters('animatedSVEnemies');
  Rexal.ASVE.NoMovement = eval(String(Rexal.ASVE.Parameters['No Movement']));
+  Rexal.ASVE.Breathe = eval(String(Rexal.ASVE.Parameters['Static Enemies Breathe']));
+  Rexal.ASVE.AGIB = eval(String(Rexal.ASVE.Parameters['AGI Effects Breathing']));
   //-----------------------------------------------------------------------------
 // Game_Enemy
 //=============================================================================
@@ -147,6 +164,44 @@ Game_Enemy.prototype.performEscape = function() {
 };
 
   //-----------------------------------------------------------------------------
+// Sprite_Enemy
+//=============================================================================
+if(Rexal.ASVE.Breathe)
+{
+
+	
+Sprite_Enemy.prototype.updateBitmap = function() {
+
+	
+	Rexal.ASVE.processEnemyNoteTag( $dataEnemies[this._enemy.enemyId] );
+
+	if(!Rexal.ASVE._noBreath){
+		var a = 1;
+		if(Rexal.ASVE.AGIB) a = this._enemy.agi/100+1;
+	var breathS = Rexal.ASVE._breathScale;
+	var breathY = Math.cos(Graphics.frameCount*breathS*a)*Rexal.ASVE._breathY;
+	var breathX = Math.cos(Graphics.frameCount*breathS)*Rexal.ASVE._breathX;
+	
+	breathY *= (this._enemy.hp/this._enemy.mhp);
+	
+	this.scale.y = 1+breathY;
+	this.scale.x = 1+breathX;
+	
+	}
+	    Sprite_Battler.prototype.updateBitmap.call(this);
+    var name = this._enemy.battlerName();
+    var hue = this._enemy.battlerHue();
+    if (this._battlerName !== name || this._battlerHue !== hue) {
+        this._battlerName = name;
+        this._battlerHue = hue;
+        this.loadBitmap(name, hue);
+        this.initVisibility();
+    }
+};
+
+
+}
+  //-----------------------------------------------------------------------------
 // Sprite_WeaponRex
 //=============================================================================
 
@@ -158,7 +213,7 @@ Sprite_WeaponRex.prototype = Object.create(Sprite_Weapon.prototype);
 Sprite_WeaponRex.prototype.constructor = Sprite_WeaponRex;
 
 Sprite_WeaponRex.prototype.loadBitmap = function() {
-
+	
 	this.scale.x = -1;
     var pageId = Math.floor((this._weaponImageId - 1) / 12) + 1;
     if (pageId >= 1) {
@@ -346,8 +401,13 @@ Rexal.ASVE.processEnemyNoteTag = function(obj) {
 Rexal.ASVE._animated = false;
 Rexal.ASVE._motion = 'thrust';
 Rexal.ASVE._weaponID = 0;
+Rexal.ASVE._noBreath = false;
+Rexal.ASVE._breathX = .005;
+Rexal.ASVE._breathY = .025;
+Rexal.ASVE._breathScale = .05;
 
 if(obj == null)return;
+
 		var notedata = obj.note.split(/[\r\n]+/);
 
 		for (var i = 0; i < notedata.length; i++) {
@@ -366,13 +426,21 @@ if(obj == null)return;
 		
 		case 'SV Weapon' :
         Rexal.ASVE._weaponID = parseInt(lines[1]);
+		break;
+		
+		case '[Breathless]' :
+		Rexal.ASVE._noBreath = true;
 		break;	
 		
-		
+		case 'Breath Control' :
+
+		var lines2 = lines[1].split(',');
+
+		Rexal.ASVE._breathScale = parseFloat(lines2[0]);
+		Rexal.ASVE._breathX = parseFloat(lines2[1]);
+		Rexal.ASVE._breathY = parseFloat(lines2[2]);
 		}
 		
 			
 		}
-		
-
 };
