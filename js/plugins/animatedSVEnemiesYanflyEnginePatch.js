@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedEnemiesYanflyCompatability.js
-// Version: 1.012b
+// Version: 1.013
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies.Yanfly = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.012b
+ * @plugindesc Version: 1.013
  * - Makes animatedSVEnemies compatible with Yanfly's plugins.
  * @author Rexal
  *
@@ -21,15 +21,12 @@ Rexal.ASVE = Rexal.ASVE || {};
  v1.01 - got rid of an unnecessary function.
  v1.011 - Forgot a bracket.
  v1.012b - Should be compatible with the lastest Battle Engine Core.
- 
+ v1.013 - Fixed the positioning for when you set a different screen resolution
  */
  if(Imported.AnimatedSVEnemies){
 	 
 	 
 
- 
- Rexal.ASVE.Parameters = PluginManager.parameters('animatedSVEnemies');
- Rexal.ASVE.NoMovement = eval(String(Rexal.ASVE.Parameters['No Movement']));
   //-----------------------------------------------------------------------------
 // Game_Enemy
 //=============================================================================
@@ -88,6 +85,18 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 			    this.setHome(x,y);
 	};
 	
+		Sprite_Enemy.prototype.setHome = function(x,y) {
+			
+			var dX = Graphics.boxWidth/816;
+			var dY = Graphics.boxHeight/624;
+			
+			x*= dX;
+			y*= dY;
+			
+			this._homeX = x;
+			this._homeY = y;
+			this.updatePosition();
+	};
 
 if(Imported.YEP_BattleEngineCore)
 {
