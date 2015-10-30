@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemiesYanflyCompatability.js
-// Version: 1.01
+// Version: 1.012
 //=============================================================================
 
 var Imported = Imported || {};
@@ -10,6 +10,7 @@ var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
  * @plugindesc Makes animatedSVEnemies compatible with Yanfly's plugins.
+ * Version: 1.012
  * @author Rexal
  *
  * @help
@@ -19,6 +20,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  v1 - Initial Version
  v1.01 - got rid of an unnecessary function.
  v1.011 - Forgot a bracket.
+ v1.012 - Static enemies should be positioned correctly now.
  
  */
  if(Imported.AnimatedSVEnemies){
@@ -74,6 +76,19 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 {
 
 	Sprite_EnemyRex.prototype.setActorHome = function(battler) {
+			
+			var dX = Graphics.boxWidth/816;
+			var dY = Graphics.boxHeight/624;
+	
+			var x = battler.screenX(); 
+			var y = battler.screenY();
+			
+			x*= dX;
+			y*= dY;
+			    this.setHome(x,y);
+	};
+	
+		Sprite_Enemy.prototype.setHome = function(battler) {
 			
 			var dX = Graphics.boxWidth/816;
 			var dY = Graphics.boxHeight/624;
