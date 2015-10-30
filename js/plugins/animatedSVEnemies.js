@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedEnemies.js
-// Version: 1.08 - Deep Breaths
+// Version: 1.081 hotfix - Deep Breaths
 //=============================================================================
 
 var Imported = Imported || {};
@@ -92,7 +92,12 @@ Rexal.ASVE = Rexal.ASVE || {};
  
    v1.08 - Fixed Breathing
  - The breathing notetags work now! Yay! 
- - Added []
+ - Added [Float]
+ 
+   v1.081 - Exit stage left
+ - Floating enemies no longer zip out of the screen if their x position is modified.
+ 
+ 
  
  */
  
@@ -198,6 +203,13 @@ Game_Enemy.prototype.performEscape = function() {
   //-----------------------------------------------------------------------------
 // Sprite_Enemy
 //=============================================================================
+Sprite_Enemy.prototype.setBattler = function(battler) {
+    Sprite_Battler.prototype.setBattler.call(this, battler);
+    this._enemy = battler;
+    this.setHome(battler.screenX(), battler.screenY());
+    this._stateIconSprite.setup(battler);
+};
+
 if(Rexal.ASVE.Breathe)
 {
 
@@ -221,9 +233,9 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 	
 	}
 	
-	if(Rexal.ASVE._float)
+	if(Rexal.ASVE._float && !this.isBusy)
 	{
-		this.setHome(this.x,this.y-Math.sin(Graphics.frameCount/50)/4);
+		this.setHome(this._enemy.screenX(),this.y-Math.sin(Graphics.frameCount/50)/4);
 	}
 	
 	    Sprite_Battler.prototype.updateBitmap.call(this);
@@ -236,6 +248,27 @@ Sprite_Enemy.prototype.updateBitmap = function() {
         this.initVisibility();
     }
 };
+}
+else{
+		if(Rexal.ASVE._float && !this.isBusy)
+	{
+	Sprite_Enemy.prototype.updateBitmap = function() {
+		
+
+		this.setHome(this._enemy.screenX(),this.y-Math.sin(Graphics.frameCount/50)/4);
+
+		
+    Sprite_Battler.prototype.updateBitmap.call(this);
+    var name = this._enemy.battlerName();
+    var hue = this._enemy.battlerHue();
+    if (this._battlerName !== name || this._battlerHue !== hue) {
+        this._battlerName = name;
+        this._battlerHue = hue;
+        this.loadBitmap(name, hue);
+        this.initVisibility();
+    }
+};
+	}
 
 
 }
