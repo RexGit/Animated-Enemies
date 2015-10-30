@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedEnemiesYanflyCompatability.js
-// Version: 1.013
+// Version: 1.013b
 //=============================================================================
 
 var Imported = Imported || {};
@@ -22,6 +22,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  v1.011 - Forgot a bracket.
  v1.012b - Should be compatible with the lastest Battle Engine Core.
  v1.013 - Fixed the positioning for when you set a different screen resolution
+ v1.013b - Fixed the floating enemies...sorta.
  */
  if(Imported.AnimatedSVEnemies){
 	 
@@ -81,7 +82,7 @@ if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
 			var y = battler.screenY();
 			
 			x*= dX;
-			y*= dY;
+			if(!Rexal.ASVE._float)y*= dY;
 			    this.setHome(x,y);
 	};
 	
