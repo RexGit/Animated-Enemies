@@ -18,6 +18,7 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  v1 - Initial Version
  v1.01 - got rid of an unnecessary function.
+ v1.011 - Forgot a bracket.
  
  */
  if(Imported.AnimatedSVEnemies){
@@ -96,6 +97,9 @@ if(Imported.YEP_BattleEngineCore)
 	
 }
 
+
+
   //-----------------------------------------------------------------------------
 // Rex Functions
 //=============================================================================
+ }
