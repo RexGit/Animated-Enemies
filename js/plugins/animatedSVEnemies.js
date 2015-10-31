@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.1 - Live and Reloaded
+// Version: 1.101 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -36,6 +36,10 @@ Rexal.ASVE = Rexal.ASVE || {};
  
  * @param Scale Statics by Distance
  * @desc Static Enemies will be smaller the further away they are in the background
+ * @default true
+ 
+  * @param Damage Slows Down Breathing
+ * @desc Breathing slows down the more damage they take
  * @default true
  
   * @help
@@ -126,6 +130,10 @@ Rexal.ASVE = Rexal.ASVE || {};
   - Enemies are now properly positioned.
   - You can now scale the enemies however you want.
   
+   v1.101 -
+   
+   - Added a parameter to prevent enemies from breathing slower the more damage they take.
+  
  
  --------------------------------------------------------------------------------
  Motion List
@@ -158,6 +166,7 @@ Rexal.ASVE = Rexal.ASVE || {};
   Rexal.ASVE.AGIB = eval(String(Rexal.ASVE.Parameters['AGI Effects Breathing']));
   Rexal.ASVE.Celebration = eval(String(Rexal.ASVE.Parameters['Enemies Celebrate']));
    Rexal.ASVE.DoCollapse = eval(String(Rexal.ASVE.Parameters['SV Enemies Collapse']));
+ Rexal.ASVE.DamageSlow = eval(String(Rexal.ASVE.Parameters['Damage Slows Down Breathing']));
    
   //-----------------------------------------------------------------------------
 // BattleManager
@@ -314,11 +323,11 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 		var a = 1;
 		if(Rexal.ASVE.AGIB) a = this._enemy.agi/100+1;
 	var breathS = Rexal.ASVE._breathScale/1000;
-	breathS *= (this._enemy.hp/this._enemy.mhp)+.1;
+	if(Rexal.ASVE.DamageSlow) breathS *= (this._enemy.hp/this._enemy.mhp)+.1;
 	var breathY = Math.cos(Graphics.frameCount*breathS*a)*(Rexal.ASVE._breathY/1000);
 	var breathX = Math.cos(Graphics.frameCount*breathS)*(Rexal.ASVE._breathX/1000);
 	
-	breathY *= (this._enemy.hp/this._enemy.mhp);
+	if(Rexal.ASVE.DamageSlow)breathY *= (this._enemy.hp/this._enemy.mhp);
 	var ss = Graphics.boxHeight/624+.5;
 	var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
 	
