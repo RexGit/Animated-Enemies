@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedEnemiesYanflyCompatability.js
-// Version: 1.014
+// Version: 1.015a
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies.Yanfly = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.014 - the clickening
+ * @plugindesc Version: 1.015
  * - Makes animatedSVEnemies compatible with Yanfly's plugins.
  * @author Rexal
  *
@@ -21,52 +21,11 @@ Rexal.ASVE = Rexal.ASVE || {};
  v1.01 - got rid of an unnecessary function.
  v1.011 - Forgot a bracket.
  v1.012b - Should be compatible with the lastest Battle Engine Core.
- v1.013 
- - fixed enemy positioning...kinda.
- - fixed floating monsters
+ v1.013 - fixed floating monsters
  v1.014 - fixed mouse support...but you can't mix up the enemy types.
+ v1.015a - Did some cleaning.
  */
  if(Imported.AnimatedSVEnemies){
-	 
-
-  //-----------------------------------------------------------------------------
-// Core Engine
-//=============================================================================
-
-if(Imported.YEP_CoreEngine && eval(Yanfly.Param.ReposBattlers))
-{
-
-	Sprite_EnemyRex.prototype.setActorHome = function(battler) {
-			
-			var dX = Graphics.boxWidth/816;
-			var dY = Graphics.boxHeight/624;
-	
-			var x = battler.screenX(); 
-			var y = battler.screenY();
-			
-			x*= dX;
-			y*= dY;
-			    this.setHome(x,y);
-	};
-	
-		Sprite_Enemy.prototype.setHome = function(x,y) {
-			
-			var dX = Graphics.boxWidth/816;
-			var dY = Graphics.boxHeight/624;
-			
-			x*= dX;
-			if(!Rexal.ASVE._float)y*= dY;
-			
-			this._homeX = x;
-			this._homeY = y;
-			this.updatePosition();
-	};
-
-}
-
-
-
-
 
 
 
@@ -82,7 +41,7 @@ if(Imported.YEP_BattleEngineCore)
 		
     if(!this.battler()) return 1;
 	
-	if (Rexal.ASVE._animated) {
+	if (Rexal.ASVE._animated && this.battler()._mainSprite) {
 			return this.battler()._mainSprite.width;
 		} else {
 			return this.battler().width;
@@ -94,7 +53,7 @@ Game_Enemy.prototype.spriteHeight = function() {
 
 	    if(!this.battler()) return 1;
 		
-    if (Rexal.ASVE._animated) {
+    if (Rexal.ASVE._animated && this.battler()._mainSprite) {
 			return this.battler()._mainSprite.height;
 		} else {
 			return this.battler().height;
