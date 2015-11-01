@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.111 - Live and Reloaded
+// Version: 1.112 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.1 - Live and Reloaded
+ * @plugindesc Version: 1.112 - Live and Reloaded
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -49,10 +49,12 @@ Rexal.ASVE = Rexal.ASVE || {};
  ================================================================================
  
  
- ---------------------------[Side View Battlers]---------------------------------
+ ---------------------------[SV Battlers]---------------------------------
  
  [SV Animated]
- - Sets the enemy to use the an SV battler. 
+ - Sets the enemy to use the an SV Actor sprite. These are located in the sv_actors 
+ folder. Make sure that there's a sprite in that folder that matches the name
+ of the enemy's image you used.
 
  [Collapse]
  - Lets the SV Enemy use collapse animations regardless of parameter settings.
@@ -218,6 +220,9 @@ Rexal.ASVE = Rexal.ASVE || {};
         } else if (attackMotion.type === 2) {
             this.requestMotion('missile');
         }
+		
+		if(Rexal.ASVE._motion != 'thrust')this.requestMotion(Rexal.ASVE._motion);
+		
 		this.startWeaponAnimation(attackMotion.weaponImageId);
     }
 };
