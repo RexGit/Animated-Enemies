@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.101 - Live and Reloaded
+// Version: 1.11 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -133,6 +133,10 @@ Rexal.ASVE = Rexal.ASVE || {};
    v1.101 -
    
    - Added a parameter to prevent enemies from breathing slower the more damage they take.
+   
+   v1.11 -
+   
+   - Fixed the positioning. SORRY!
   
  
  --------------------------------------------------------------------------------
@@ -167,7 +171,7 @@ Rexal.ASVE = Rexal.ASVE || {};
   Rexal.ASVE.Celebration = eval(String(Rexal.ASVE.Parameters['Enemies Celebrate']));
    Rexal.ASVE.DoCollapse = eval(String(Rexal.ASVE.Parameters['SV Enemies Collapse']));
  Rexal.ASVE.DamageSlow = eval(String(Rexal.ASVE.Parameters['Damage Slows Down Breathing']));
-   
+     Rexal.ASVE.ScaleStatics = eval(String(Rexal.ASVE.Parameters['Scale Statics by Distance']));  
   //-----------------------------------------------------------------------------
 // BattleManager
 //=============================================================================
@@ -328,8 +332,9 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 	var breathX = Math.cos(Graphics.frameCount*breathS)*(Rexal.ASVE._breathX/1000);
 	
 	if(Rexal.ASVE.DamageSlow)breathY *= (this._enemy.hp/this._enemy.mhp);
-	var ss = Graphics.boxHeight/624+.5;
-	var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
+	var ss = Graphics.boxHeight/624+.1;
+	if(Rexal.ASVE.ScaleStatics)var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
+	else var s = ss*Rexal.ASVE._enemyScale;
 	
 	
 	this.scale.y = s+breathY;
@@ -361,8 +366,9 @@ else{
 
 		this.setHome(this._enemy.screenX(),this.y-Math.sin(Graphics.frameCount/50)/4);
 
-	var ss = Graphics.boxHeight/624+.5;
-	var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
+	var ss = Graphics.boxHeight/624+.1;
+	if(Rexal.ASVE.ScaleStatics)var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
+	else var s = ss*Rexal.ASVE._enemyScale;
 	
 	
 	this.scale.y = s;
@@ -400,7 +406,7 @@ Sprite_Enemy.prototype.stepForward = function() {
 			if(!Rexal.ASVE._float)y*= dY;
 			
 			this._homeX = x;
-			this._homeY = y + (Graphics.boxHeight - 624);
+			this._homeY = y + (Graphics.boxHeight - 624)/3;
 			this.updatePosition();
 	};
 
@@ -505,7 +511,7 @@ Sprite_EnemyRex.prototype.setActorHome = function(battler) {
 			var y = battler.screenY();
 			
 			this._homeX = x;
-			this._homeY = y + (Graphics.boxHeight - 624);
+			this._homeY = y + (Graphics.boxHeight - 624)/3;
 			this.updatePosition();
 	};
 
