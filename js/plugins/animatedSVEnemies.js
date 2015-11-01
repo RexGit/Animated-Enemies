@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.11 - Live and Reloaded
+// Version: 1.111 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -137,6 +137,9 @@ Rexal.ASVE = Rexal.ASVE || {};
    v1.11 -
    
    - Fixed the positioning. SORRY!
+   
+   v1.111 -
+   - No comment.
   
  
  --------------------------------------------------------------------------------
@@ -334,7 +337,7 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 	if(Rexal.ASVE.DamageSlow)breathY *= (this._enemy.hp/this._enemy.mhp);
 	var ss = Graphics.boxHeight/624+.1;
 	if(Rexal.ASVE.ScaleStatics)var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
-	else var s = ss*Rexal.ASVE._enemyScale;
+	else var s = Rexal.ASVE._enemyScale;
 	
 	
 	this.scale.y = s+breathY;
@@ -368,7 +371,7 @@ else{
 
 	var ss = Graphics.boxHeight/624+.1;
 	if(Rexal.ASVE.ScaleStatics)var s = ss*(this._homeY/Graphics.boxHeight)*Rexal.ASVE._enemyScale;
-	else var s = ss*Rexal.ASVE._enemyScale;
+	else var s = Rexal.ASVE._enemyScale;
 	
 	
 	this.scale.y = s;
