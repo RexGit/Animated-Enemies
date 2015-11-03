@@ -479,7 +479,7 @@ Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
         this._weaponSprite.setup(this._actor.weaponImageId() );
 		this._weaponSprite.scale.x = -this._actor._scale;
 		this._weaponSprite.scale.y = this._actor._scale;
-		this._weaponSprite.x = -this._weaponSprite.x;
+		this._weaponSprite.x = this._weaponSprite.x*-1;
         this._actor.clearWeaponAnimation();
     }
 
