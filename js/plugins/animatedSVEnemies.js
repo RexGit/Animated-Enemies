@@ -386,8 +386,8 @@ Sprite_Enemy.prototype.stepForward = function() {
 			var dX = Graphics.boxWidth/816;
 			var dY = Graphics.boxHeight/624;
 			
-			x*= dX;
 			y*= dY;
+			x*= dX;
 			
 			this._homeX = x;
 			this._homeY = y + (Graphics.boxHeight - 624)/3;
@@ -477,6 +477,7 @@ Sprite_EnemyRex.prototype.updateBitmap = function() {
 Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
     if (this._actor.isWeaponAnimationRequested()) {
         this._weaponSprite.setup(this._actor.weaponImageId() );
+		this._weaponSprite.scale.x = -this._actor._scale;
 		this._weaponSprite.scale.y = this._actor._scale;
 		this._weaponSprite.x = -this._weaponSprite.x;
         this._actor.clearWeaponAnimation();
