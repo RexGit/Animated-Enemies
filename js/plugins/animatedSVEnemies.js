@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.12 - Live and Reloaded
+// Version: 1.12.1 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -146,13 +146,18 @@ Rexal.ASVE = Rexal.ASVE || {};
    
    v1.111 -
    - No comment.
+      v1.113 -
+   Fixed the weapons.
    
    v1.12 -
+   - Completely rewrote crucial portions of the script.
    - Note tags are no longer case-sensitive.
    - Fixed the positioning officially.
    - Fixed the floating issue.
-   -
-  
+      
+	  v1.12.1 -
+   - Made SV Battlers recognizable as enemies.
+
  
  --------------------------------------------------------------------------------
  Motion List
@@ -722,6 +727,7 @@ Spriteset_Battle.prototype.createEnemies = function() {
     if(enemy._animated)  
 	{
 		sprites[i] = new Sprite_EnemyRex(enemies[i]);
+		sprites[i]._enemy = sprites[i]._actor;
 		sprites[i].opacity = 0;
 	}
 	else 
