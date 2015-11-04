@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.12.1 - Live and Reloaded
+// Version: 1.12.11 - Live and Reloaded
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.12.1 - Live and Reloaded
+ * @plugindesc Version: 1.12.11 - Live and Reloaded
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -158,6 +158,8 @@ Rexal.ASVE = Rexal.ASVE || {};
 	  v1.12.1 -
    - Made SV Battlers recognizable as enemies.
    - [SV] Overlays should be facing the right way now.
+	  v1.12.11
+	-Fixed the weapon positions. AGAIN
 
  
  --------------------------------------------------------------------------------
@@ -493,7 +495,7 @@ Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
         this._weaponSprite.setup(this._actor.weaponImageId() );
 		this._weaponSprite.scale.x = -this._actor._scale;
 		this._weaponSprite.scale.y = this._actor._scale;
-		this._weaponSprite.x = this._weaponSprite.x*-1;
+		this._weaponSprite.x = -this._weaponSprite.x;
         this._actor.clearWeaponAnimation();
     }
 
