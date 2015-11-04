@@ -157,6 +157,7 @@ Rexal.ASVE = Rexal.ASVE || {};
       
 	  v1.12.1 -
    - Made SV Battlers recognizable as enemies.
+   - [SV] Overlays should be facing the right way now.
 
  
  --------------------------------------------------------------------------------
@@ -417,6 +418,14 @@ Sprite_EnemyRex.prototype.createWeaponSprite = function() {
 
     this.addChild(this._weaponSprite);
 };
+
+ 
+ Sprite_Actor.prototype.createStateSprite = function() {
+    this._stateSprite = new Sprite_StateOverlay();
+	this._stateSprite.scale.x  = -1;
+    this.addChild(this._stateSprite);
+};
+
 
 
 Sprite_EnemyRex.prototype.updateSelectionEffect = function() {
