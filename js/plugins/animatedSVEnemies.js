@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.12 - Live and Reloaded
+ * @plugindesc Version: 1.12.1 - Live and Reloaded
  * - Lets enemies be animated!
  * @author Rexal
  *
