@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.15 - The Re-Remake
+// Version: 1.15.1 - The Re-Remake
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.15 - The Re-Remake
+ * @plugindesc Version: 1.15.1 - The Re-Remake
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -158,6 +158,8 @@ Rexal.ASVE = Rexal.ASVE || {};
    v1.15 - The Re-Remake
    - Massive cleanup that should make it much more compatible.
   
+	v1.15.1 -
+	-Solved the issue with damage numbers not popping up.
  
  --------------------------------------------------------------------------------
  Motion List
@@ -462,9 +464,7 @@ Sprite_EnemyRex.prototype.setActorHome = function(battler) {
 	};
 
 
-Sprite_EnemyRex.prototype.damageOffsetX = function() {
-    return 32;
-};
+
 
 Sprite_EnemyRex.prototype.stepForward = function() {
    if(!Rexal.ASVE.NoMovement) this.startMove(48, 0, 12);
@@ -637,15 +637,6 @@ Sprite_Enemy.prototype.updateBossCollapse.call(this);
 Sprite_EnemyRex.prototype.updateInstantCollapse = function() {
 Sprite_Enemy.prototype.updateInstantCollapse.call(this);
 };
-
-Sprite_EnemyRex.prototype.damageOffsetX = function() {
-Sprite_Enemy.prototype.damageOffsetX.call(this);
-};
-
-Sprite_EnemyRex.prototype.damageOffsetY = function() {
-Sprite_Enemy.prototype.damageOffsetY.call(this);
-};
-
   //-----------------------------------------------------------------------------
 // Spriteset_Battle
 //=============================================================================
