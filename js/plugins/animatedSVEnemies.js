@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.12.11 - Live and Reloaded
+// Version: 1.15 - The Re-Remake
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.12.11 - Live and Reloaded
+ * @plugindesc Version: 1.15 - The Re-Remake
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -148,19 +148,16 @@ Rexal.ASVE = Rexal.ASVE || {};
    - No comment.
       v1.113 -
    Fixed the weapons.
-   
+
    v1.12 -
    - Completely rewrote crucial portions of the script.
    - Note tags are no longer case-sensitive.
    - Fixed the positioning officially.
    - Fixed the floating issue.
-      
-	  v1.12.1 -
-   - Made SV Battlers recognizable as enemies.
-   - [SV] Overlays should be facing the right way now.
-	  v1.12.11
-	-Fixed the weapon positions. AGAIN
-
+   
+   v1.15 - The Re-Remake
+   - Massive cleanup that should make it much more compatible.
+  
  
  --------------------------------------------------------------------------------
  Motion List
@@ -196,6 +193,19 @@ Rexal.ASVE = Rexal.ASVE || {};
    Rexal.ASVE.DoCollapse = eval(String(Rexal.ASVE.Parameters['SV Enemies Collapse']));
  Rexal.ASVE.DamageSlow = eval(String(Rexal.ASVE.Parameters['Damage Slows Down Breathing']));
      Rexal.ASVE.ScaleStatics = eval(String(Rexal.ASVE.Parameters['Scale Statics by Distance']));  
+	 
+	   
+  //-----------------------------------------------------------------------------
+ //Original Functions Storage
+//=============================================================================
+Rexal.ASVE.Game_Enemy_makeActions = Game_Enemy.prototype.makeActions;
+Rexal.ASVE.Game_Enemy_performDamage = Game_Enemy.prototype.performDamage;
+Rexal.ASVE.Sprite_Enemy_updateBitmap =   Sprite_Enemy.prototype.updateBitmap;
+Rexal.ASVE.seupdateappear = Sprite_Enemy.prototype.updateAppear;
+Rexal.ASVE.processDefeat = BattleManager.processDefeat;
+Rexal.ASVE.spriteactorupdatebitmap = Sprite_Actor.prototype.updateBitmap;
+Rexal.ASVE.setupweaponanimation = Sprite_Actor.prototype.setupWeaponAnimation;
+Rexal.ASVE.setactorhome = Sprite_Actor.prototype.setActorHome;
   //-----------------------------------------------------------------------------
 // BattleManager
 //=============================================================================
@@ -204,6 +214,7 @@ Rexal.ASVE = Rexal.ASVE || {};
   {  
 
   BattleManager.processDefeat = function() {
+	  Rexal.ASVE.processDefeat.call(this);
     if(Rexal.ASVE.Celebration)$gameTroop.performVictory();
 	this.displayDefeatMessage();
     this.playDefeatMe();
@@ -216,6 +227,7 @@ Rexal.ASVE = Rexal.ASVE || {};
 };
   }
   
+
   //-----------------------------------------------------------------------------
 // Game_Enemy
 //=============================================================================
@@ -262,13 +274,8 @@ Game_Enemy.prototype.performAction = function(action) {
 };
 
 Game_Enemy.prototype.performDamage = function() {
-    Game_Battler.prototype.performDamage.call(this);
-    if (this.isSpriteVisible()) {
-        this.requestMotion('damage');
-    } else {
-        $gameScreen.startShake(5, 5, 10);
-    }
-    SoundManager.playActorDamage();
+    Rexal.ASVE.Game_Enemy_performDamage.call(this);
+    this.requestMotion('damage');
 };
 
 Game_Enemy.prototype.performEvasion = function() {
@@ -293,16 +300,9 @@ Game_Enemy.prototype.performVictory = function() {
 };
 
 
+
 Game_Enemy.prototype.makeActions = function() {
-    Game_Battler.prototype.makeActions.call(this);
-    if (this.numActions() > 0) {
-        var actionList = this.enemy().actions.filter(function(a) {
-            return this.isActionValid(a);
-        }, this);
-        if (actionList.length > 0) {
-            this.selectAllActions(actionList);
-        }
-    }
+Rexal.ASVE.Game_Enemy_makeActions.call(this);
  this.setActionState('undecided');
 };
 
@@ -341,9 +341,8 @@ Sprite_Enemy.prototype.setBattler = function(battler) {
 };
 	
 Sprite_Enemy.prototype.updateBitmap = function() {
-
 	
-
+ Rexal.ASVE.Sprite_Enemy_updateBitmap.call(this);
 
 	if(!this._enemy._breathless && Rexal.ASVE.Breathe){
 
@@ -359,6 +358,7 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 	if(Rexal.ASVE.ScaleStatics)var s = ss*(this._homeY/Graphics.boxHeight)*this._enemy._scale;
 	else var s = this._enemy._scale;
 	
+	this.smooth = true;
 	
 	this.scale.y = s+breathY;
 	this.scale.x = s+breathX;
@@ -371,15 +371,6 @@ Sprite_Enemy.prototype.updateBitmap = function() {
 		this.setHome(this._enemy.screenX(),this._enemy.screenY()+f);
 	}
 	
-	    Sprite_Battler.prototype.updateBitmap.call(this);
-    var name = this._enemy.battlerName();
-    var hue = this._enemy.battlerHue();
-    if (this._battlerName !== name || this._battlerHue !== hue) {
-        this._battlerName = name;
-        this._battlerHue = hue;
-        this.loadBitmap(name, hue);
-        this.initVisibility();
-    }
 };
 
 
@@ -421,14 +412,6 @@ Sprite_EnemyRex.prototype.createWeaponSprite = function() {
     this.addChild(this._weaponSprite);
 };
 
- 
- Sprite_Actor.prototype.createStateSprite = function() {
-    this._stateSprite = new Sprite_StateOverlay();
-	this._stateSprite.scale.x  = -1;
-    this.addChild(this._stateSprite);
-};
-
-
 
 Sprite_EnemyRex.prototype.updateSelectionEffect = function() {
 	
@@ -447,20 +430,9 @@ Sprite_EnemyRex.prototype.updateSelectionEffect = function() {
 	
 }
 
- Sprite_EnemyRex.prototype = Object.create(Sprite_Actor.prototype);
-Sprite_EnemyRex.prototype.constructor = Sprite_EnemyRex;
-
- Sprite_EnemyRex.prototype.initialize = function(battler) {
-    Sprite_Battler.prototype.initialize.call(this, battler);
-
-};
- 
  Sprite_EnemyRex.prototype.loadBitmap = function(name, hue) {
-    if ($gameSystem.isSideView()) {
+
         this.bitmap = ImageManager.loadSvActor(name,hue);
-    } else {
-        this.bitmap = ImageManager.loadEnemy(name, hue);
-    }
 };
 
 Sprite_EnemyRex.prototype.setBattler = function(battler) {
@@ -478,31 +450,31 @@ Sprite_EnemyRex.prototype.setBattler = function(battler) {
 
 
 Sprite_EnemyRex.prototype.updateBitmap = function() {
+	Rexal.ASVE.spriteactorupdatebitmap.call(this);
 	this.updateEffect();
-    Sprite_Battler.prototype.updateBitmap.call(this);
 	var hue = this._actor.battlerHue();
     var name = this._actor.battlerName();
-    if (this._battlerName !== name) {
-        this._battlerName = name;
         this._mainSprite.bitmap = ImageManager.loadSvActor(name,hue);
 		this._mainSprite.scale.x = -this._actor._scale;
 		this._mainSprite.scale.y = this._actor._scale;
-    }
+
 };
 
 Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
-    if (this._actor.isWeaponAnimationRequested()) {
-        this._weaponSprite.setup(this._actor.weaponImageId() );
+	Rexal.ASVE.setupweaponanimation.call(this);
+		
+		if(!this._weaponSprite._positioned)
+		{
 		this._weaponSprite.scale.x = -this._actor._scale;
 		this._weaponSprite.scale.y = this._actor._scale;
 		this._weaponSprite.x = -this._weaponSprite.x;
-        this._actor.clearWeaponAnimation();
-    }
+        this._weaponSprite._positioned = true;
+		}
 
 };
 
 Sprite_EnemyRex.prototype.setActorHome = function(battler) {
-			
+			Rexal.ASVE.setactorhome.call(this);
 			var dX = Graphics.boxWidth/816;
 			var dY = Graphics.boxHeight/624;
 	
@@ -539,17 +511,8 @@ Sprite_EnemyRex.prototype.initVisibility = function() {
 };
 
 Sprite_EnemyRex.prototype.setupEffect = function() {
-		
-
-    if (this._appeared && this._actor.isEffectRequested()) {
-        this.startEffect(this._actor.effectType());
-        this._actor.clearEffect();
-    }
-    if (!this._appeared && this._actor.isAlive()) {
-        this.startEffect('appear');
-    } else if (this._appeared && this._actor.isHidden()) {
-        this.startEffect('disappear');
-    }
+	 this._enemy = this._actor;
+Sprite_Enemy.prototype.setupEffect.call(this);
 };
 
 Sprite_EnemyRex.prototype.startEffect = function(effectType) {
@@ -582,36 +545,31 @@ Sprite_EnemyRex.prototype.startEffect = function(effectType) {
 };
 
 Sprite_EnemyRex.prototype.startAppear = function() {
-    this._effectDuration = 16;
-    this._appeared = true;
+Sprite_Enemy.prototype.startAppear.call(this);
 };
 
 Sprite_EnemyRex.prototype.startDisappear = function() {
-    this._effectDuration = 32;
-    this._appeared = false;
+Sprite_Enemy.prototype.startDisappear.call(this);
 };
 
 Sprite_EnemyRex.prototype.startWhiten = function() {
-    this._effectDuration = 16;
+Sprite_Enemy.prototype.startWhiten.call(this);
 };
 
 Sprite_EnemyRex.prototype.startBlink = function() {
-    this._effectDuration = 20;
+Sprite_Enemy.prototype.startBlink.call(this);
 };
 
 Sprite_EnemyRex.prototype.startCollapse = function() {
-    this._effectDuration = 32;
-    this._appeared = false;
+Sprite_Enemy.prototype.startCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.startBossCollapse = function() {
-    this._effectDuration = this._mainSprite.height;
-    this._appeared = false;
+Sprite_Enemy.prototype.startBossCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.startInstantCollapse = function() {
-    this._effectDuration = 16;
-    this._appeared = false;
+Sprite_Enemy.prototype.startInstantCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateEffect = function() {
@@ -652,73 +610,65 @@ Sprite_EnemyRex.prototype.updateEffect = function() {
 
 	
 Sprite_EnemyRex.prototype.isEffecting = function() {
-   if(this._actor._collapse) return this._effectType !== null;
+Sprite_Enemy.prototype.isEffecting.call(this);
 };
 
 
 
 Sprite_EnemyRex.prototype.revertToNormal = function() {
-    this._shake = 0;
-    this.blendMode = 0;
-    this.opacity = 255;
-    this.setBlendColor([0, 0, 0, 0]);
+Sprite_Enemy.prototype.revertToNormal.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateWhiten = function() {
-    var alpha = 128 - (16 - this._effectDuration) * 10;
-    this.setBlendColor([255, 255, 255, alpha]);
+Sprite_Enemy.prototype.updateWhiten.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateBlink = function() {
-    this.opacity = (this._effectDuration % 10 < 5) ? 255 : 0;
+Sprite_Enemy.prototype.updateBlink.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateAppear = function() {
+	Sprite_Enemy.prototype.updateAppear.call(this);
 	    this.setHome(this._homeX,this._homeY);
 		    this.opacity = (16 - this._effectDuration) * 16;
 };
 
 Sprite_EnemyRex.prototype.updateDisappear = function() {
+	Sprite_Enemy.prototype.updateDisappear.call(this);
 	    this.setHome(this._homeX-10,this._homeY);
     this.opacity = 256 - (32 - this._effectDuration) * 10;
 };
 
 Sprite_Enemy.prototype.updateAppear = function() {
+	Rexal.ASVE.seupdateappear.call(this);
 	    this.setHome(this._homeX,this._homeY);
 				    this.opacity = (16 - this._effectDuration) * 16;
 };
 
 Sprite_Enemy.prototype.updateDisappear = function() {
+		Rexal.ASVE.seupdatedisappear.call(this);
 	    this.setHome(this._homeX-10,this._homeY);
     this.opacity = 256 - (32 - this._effectDuration) * 10;
 };
 
 Sprite_EnemyRex.prototype.updateCollapse = function() {
-    this.blendMode = Graphics.BLEND_ADD;
-    this.setBlendColor([255, 128, 128, 128]);
-    this.opacity *= this._effectDuration / (this._effectDuration + 1);
+Sprite_Enemy.prototype.updateCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateBossCollapse = function() {
-    this._shake = this._effectDuration % 2 * 4 - 2;
-    this.blendMode = Graphics.BLEND_ADD;
-    this.opacity *= this._effectDuration / (this._effectDuration + 1);
-    this.setBlendColor([255, 255, 255, 255 - this.opacity]);
-    if (this._effectDuration % 20 === 19) {
-        SoundManager.playBossCollapse2();
-    }
+Sprite_Enemy.prototype.updateBossCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.updateInstantCollapse = function() {
-    this.opacity = 0;
+Sprite_Enemy.prototype.updateInstantCollapse.call(this);
 };
 
 Sprite_EnemyRex.prototype.damageOffsetX = function() {
-    return 0;
+Sprite_Enemy.prototype.damageOffsetX.call(this);
 };
 
 Sprite_EnemyRex.prototype.damageOffsetY = function() {
-    return -8;
+Sprite_Enemy.prototype.damageOffsetY.call(this);
 };
 
   //-----------------------------------------------------------------------------
@@ -726,6 +676,7 @@ Sprite_EnemyRex.prototype.damageOffsetY = function() {
 //=============================================================================
 
 Spriteset_Battle.prototype.createEnemies = function() {
+	
     var enemies = $gameTroop.members();
     var sprites = [];
     for (var i = 0; i < enemies.length; i++) {
@@ -738,7 +689,6 @@ Spriteset_Battle.prototype.createEnemies = function() {
     if(enemy._animated)  
 	{
 		sprites[i] = new Sprite_EnemyRex(enemies[i]);
-		sprites[i]._enemy = sprites[i]._actor;
 		sprites[i].opacity = 0;
 	}
 	else 
@@ -752,21 +702,6 @@ Spriteset_Battle.prototype.createEnemies = function() {
     }
     this._enemySprites = sprites;
 };
-
-
-// Spriteset_Battle.prototype.updateActors = function() {
-    // var members = $gameParty.battleMembers();
-	    // var enemies = $gameTroop.members();
-		
-		    // for (var i = 0; i < this._enemySprites.length; i++) {
-        // this._enemySprites[i].setBattler(enemies[i]);
-    // }
-		
-    // for (var i = 0; i < this._actorSprites.length; i++) {
-        // this._actorSprites[i].setBattler(members[i]);
-    // }
-// };
-
 
   //-----------------------------------------------------------------------------
 // Rex Functions
