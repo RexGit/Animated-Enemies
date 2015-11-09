@@ -232,45 +232,20 @@ Rexal.ASVE.setactorhome = Sprite_Actor.prototype.setActorHome;
 // Game_Enemy
 //=============================================================================
 
-	Game_Enemy.prototype.performAttack = function() {
-		
-		
-			if(this._weaponId == 0){this.requestMotion(this._motion);
-			return;
-			}
-		
-     var weapon = $dataWeapons[this._weaponId];
-    var wtypeId = weapon.wtypeId;
-    var attackMotion = $dataSystem.attackMotions[wtypeId];
-    if (attackMotion) {
-        if (attackMotion.type === 0) {
-            this.requestMotion('thrust');
-        } else if (attackMotion.type === 1) {
-            this.requestMotion('swing');
-        } else if (attackMotion.type === 2) {
-            this.requestMotion('missile');
-        }
-		
-		if(this._motion != 'thrust')this.requestMotion(this._motion);
-		
-		this.startWeaponAnimation(attackMotion.weaponImageId);
-    }
+Game_Enemy.prototype.weapons = function() {
+    return [$dataWeapons[this._weaponId],1];
+    
 };
 
 
+	Game_Enemy.prototype.performAttack = function() {
+		Game_Actor.prototype.performAttack.call(this);
+};
+
+
+
 Game_Enemy.prototype.performAction = function(action) {
-    Game_Battler.prototype.performAction.call(this, action);
-    if (action.isAttack()) {
-        this.performAttack();
-    } else if (action.isGuard()) {
-        this.requestMotion('guard');
-    } else if (action.isMagicSkill()) {
-        this.requestMotion('spell');
-    } else if (action.isSkill()) {
-        this.requestMotion('skill');
-    } else if (action.isItem()) {
-        this.requestMotion('item');
-    }
+Game_Actor.prototype.performAction.call(this,action);
 };
 
 Game_Enemy.prototype.performDamage = function() {
@@ -440,6 +415,7 @@ Sprite_EnemyRex.prototype.setBattler = function(battler) {
     var changed = (battler !== this._actor);
     if (changed) {
         this._actor = battler;
+		this._enemy = battler;
         if (battler) {
             this.setActorHome(battler);
         }
@@ -462,7 +438,6 @@ Sprite_EnemyRex.prototype.updateBitmap = function() {
 
 Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
 	Rexal.ASVE.setupweaponanimation.call(this);
-		
 		if(!this._weaponSprite._positioned)
 		{
 		this._weaponSprite.scale.x = -this._actor._scale;
