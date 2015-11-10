@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.15.5 - The Re-Remake
+// Version: 1.15.5.1 - The Re-Remake
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.15.5 - The Re-Remake
+ * @plugindesc Version: 1.15.5.1 - The Re-Remake
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -176,6 +176,9 @@ Ex. SV Anchor: .5,1
 	-Fixed Some stuff.
 	v1.15.5
 	-Added some stuff. =m=
+	
+	v1.15.5.1
+	-Should be more compatible with stuff
  
  --------------------------------------------------------------------------------
  Motion List
@@ -288,6 +291,11 @@ Game_Enemy.prototype.performDamage = function() {
     Rexal.ASVE.Game_Enemy_performDamage.call(this);
     this.requestMotion('damage');
 };
+
+Game_Enemy.prototype.actor = function() {
+    return $dataEnemies[this._enemyId];
+};
+
 
 Game_Enemy.prototype.performEvasion = function() {
     Game_Battler.prototype.performEvasion.call(this);
