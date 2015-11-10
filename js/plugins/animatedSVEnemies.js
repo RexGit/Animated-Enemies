@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.15.3 - The Re-Remake
+// Version: 1.15.5 - The Re-Remake
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.15.3 - The Re-Remake
+ * @plugindesc Version: 1.15.5 - The Re-Remake
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -75,6 +75,18 @@ Rexal.ASVE = Rexal.ASVE || {};
 
  Ex: SV Weapon: 1
  
+	SV Weapon Scale: amount
+	 multiplies the size of the weapon by this amount.
+	 
+	 SV Weapon Anchor: x,y
+	 sets the weapon's anchor point to this.
+	 
+Ex. SV Weapon Anchor: .5,1
+
+ 	 SV Anchor: x,y
+	 sets the battler's anchor point to this.
+	 
+Ex. SV Anchor: .5,1
  
   ----------------------------[Static Battlers]---------------------------------
  
@@ -162,6 +174,8 @@ Rexal.ASVE = Rexal.ASVE || {};
 	-Solved the issue with damage numbers not popping up.
 	v1.15.3
 	-Fixed Some stuff.
+	v1.15.5
+	-Added some stuff. =m=
  
  --------------------------------------------------------------------------------
  Motion List
@@ -260,7 +274,9 @@ Game_Actor.prototype.bareHandsAnimationId.call(this);
 };
 
 Game_Enemy.prototype.hasNoWeapons = function() {
-	Game_Actor.prototype.hasNoWeapons.call(this);
+ if(this._animated && this._weaponId!=0)
+	 return false;
+	 else return true;
 }
 
 
@@ -445,18 +461,29 @@ Sprite_EnemyRex.prototype.updateBitmap = function() {
         this._mainSprite.bitmap = ImageManager.loadSvActor(name,hue);
 		this._mainSprite.scale.x = -this._actor._scale;
 		this._mainSprite.scale.y = this._actor._scale;
+		this._mainSprite.anchor.x = this._actor._anchor[0];
+		this._mainSprite.anchor.y = this._actor._anchor[1];
 
 };
 
 Sprite_EnemyRex.prototype.setupWeaponAnimation = function() {
+	
 	Rexal.ASVE.setupweaponanimation.call(this);
 		if(!this._weaponSprite._positioned)
 		{
-		this._weaponSprite.scale.x = -this._actor._scale;
-		this._weaponSprite.scale.y = this._actor._scale;
-		this._weaponSprite.x = -this._weaponSprite.x;
-        this._weaponSprite._positioned = true;
+			
+		var scale = this._actor._scale+this._actor._weaponScale;
+		
+		this._weaponSprite.scale.x = -scale;
+		this._weaponSprite.scale.y = scale;
+		this._weaponSprite.x = -this._weaponSprite.x*scale;
+        
+		this._weaponSprite.anchor.x = this._actor._weaponAnchor[0];
+		this._weaponSprite.anchor.y = this._actor._weaponAnchor[1];
+		
+		this._weaponSprite._positioned = true;
 		}
+		
 
 };
 
@@ -691,6 +718,9 @@ Object.defineProperties(Game_Enemy.prototype, {
   breathless: { get: function() { return this._breathless; }, configurable: true },
   floating: { get: function() { return this._float; }, configurable: true },
   scale: { get: function() { return this._scale; }, configurable: true },
+  weaponscale: { get: function() { return this._weaponscale; }, configurable: true },
+  weaponanchor: { get: function() { return this._weaponanchor; }, configurable: true },
+  anchor: { get: function() { return this._anchor; }, configurable: true },
   collapse: { get: function() { return this._collapse; }, configurable: true },
   breath: { get: function() { return this._breath; }, configurable: true }
 });
@@ -723,6 +753,8 @@ switch (type) {
 
 Rexal.ASVE.processEnemyData = function(obj,obj2) {
 obj._breath = [];
+obj._weaponAnchor = [];
+obj._anchor = [];
 obj._animated = obj2.animated;
 obj._motion = obj2.motion;
 obj._weaponId = obj2.weaponid;
@@ -733,6 +765,9 @@ obj._breath[0] = obj2.breath[0];
 obj._breath[1] = obj2.breath[1];
 obj._breath[2] = obj2.breath[2];
 obj._collapse = obj2.collapse;
+obj._weaponScale = obj2.weaponscale;
+obj._weaponAnchor = obj2.weaponanchor;
+obj._anchor = obj2.anchor;
 }
 
 Rexal.ASVE.processEnemyNoteTag = function(obj) {
@@ -744,6 +779,9 @@ obj.weaponid = 0;
 obj.collapse = Rexal.ASVE.DoCollapse;
 obj.breath = [50,5,25];
 obj.scale = 1.0;
+obj.weaponscale = 0.0;
+obj.weaponanchor = [.5,1];
+obj.anchor = [.5,1];
 
 if(obj == null)return;
 
@@ -802,6 +840,29 @@ if(obj == null)return;
 		case 'enemy scale' :
 		obj.scale = parseFloat(lines[1]);
 		Rexal.log(obj.name + " is " + obj.scale +"x bigger than normal.",'info');
+		break;
+		
+		case 'sv weapon scale' :
+		obj.weaponscale = parseFloat(lines[1])-1;
+		Rexal.log(obj.name + "'s weapon is " + obj.scale +"x bigger than normal.",'info');
+		break;		
+		
+		case 'sv weapon anchor' :
+		
+		var lines2 = lines[1].split(',');
+		obj.weaponanchor[0] = parseFloat(lines2[0]);
+		obj.weaponanchor[1] = parseFloat(lines2[1]);
+		Rexal.log(obj.name + "'s weapon is anchored to " + obj.weaponanchor[0] +" and " + obj.weaponanchor[1],'info');
+		break;		
+		
+		case 'sv anchor' : //WIP
+		
+		var lines2 = lines[1].split(',');
+		obj.anchor[0] = parseFloat(lines2[0]);
+		obj.anchor[1] = parseFloat(lines2[1]);
+		Rexal.log(obj.name + " is anchored to " + obj.anchor[0] +" and " + obj.anchor[1],'info');
+		break;		
+		
 		}
 		
 			
