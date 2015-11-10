@@ -1,6 +1,6 @@
 //=============================================================================
 // AnimatedSVEnemies.js
-// Version: 1.15.1 - The Re-Remake
+// Version: 1.15.3 - The Re-Remake
 //=============================================================================
 
 var Imported = Imported || {};
@@ -9,7 +9,7 @@ Imported.AnimatedSVEnemies = true;
 var Rexal = Rexal || {};
 Rexal.ASVE = Rexal.ASVE || {};
 /*:
- * @plugindesc Version: 1.15.1 - The Re-Remake
+ * @plugindesc Version: 1.15.3 - The Re-Remake
  * - Lets enemies be animated!
  * @author Rexal
  *
@@ -160,6 +160,8 @@ Rexal.ASVE = Rexal.ASVE || {};
   
 	v1.15.1 -
 	-Solved the issue with damage numbers not popping up.
+	v1.15.3
+	-Fixed Some stuff.
  
  --------------------------------------------------------------------------------
  Motion List
@@ -235,15 +237,31 @@ Rexal.ASVE.setactorhome = Sprite_Actor.prototype.setActorHome;
 //=============================================================================
 
 Game_Enemy.prototype.weapons = function() {
-    return [$dataWeapons[this._weaponId],1];
-    
+	
+ if(this._animated) return [$dataWeapons[this._weaponId]];
+ else return [1];
 };
 
 
-	Game_Enemy.prototype.performAttack = function() {
-		Game_Actor.prototype.performAttack.call(this);
+Game_Enemy.prototype.performAttack = function() {
+	Game_Actor.prototype.performAttack.call(this);
 };
 
+Game_Enemy.prototype.attackAnimationId1 = function() {
+Game_Actor.prototype.attackAnimationId1.call(this);
+};
+
+Game_Enemy.prototype.attackAnimationId2 = function() {
+Game_Actor.prototype.attackAnimationId2.call(this);
+};
+
+Game_Enemy.prototype.bareHandsAnimationId = function() {
+Game_Actor.prototype.bareHandsAnimationId.call(this);
+};
+
+Game_Enemy.prototype.hasNoWeapons = function() {
+	Game_Actor.prototype.hasNoWeapons.call(this);
+}
 
 
 Game_Enemy.prototype.performAction = function(action) {
@@ -288,14 +306,6 @@ Game_Enemy.prototype.performEscape = function() {
     if (this.canMove()) {
         this.requestMotion('escape');
     }
-};
-
-	
-Game_Enemy.prototype.attackAnimationId = function() {
-
-  if(this._weaponId!=0)  return $dataWeapons[this._weaponId].animationId;
-  else
-	  return 1;
 };
 
   //-----------------------------------------------------------------------------
@@ -602,29 +612,30 @@ Sprite_EnemyRex.prototype.updateBlink = function() {
 Sprite_Enemy.prototype.updateBlink.call(this);
 };
 
-Sprite_EnemyRex.prototype.updateAppear = function() {
-	Sprite_Enemy.prototype.updateAppear.call(this);
-	    this.setHome(this._homeX,this._homeY);
-		    this.opacity = (16 - this._effectDuration) * 16;
-};
-
-Sprite_EnemyRex.prototype.updateDisappear = function() {
-	Sprite_Enemy.prototype.updateDisappear.call(this);
-	    this.setHome(this._homeX-10,this._homeY);
-    this.opacity = 256 - (32 - this._effectDuration) * 10;
-};
-
+Rexal.ASVE.seupdateappear = Sprite_Enemy.prototype.updateAppear;
 Sprite_Enemy.prototype.updateAppear = function() {
 	Rexal.ASVE.seupdateappear.call(this);
 	    this.setHome(this._homeX,this._homeY);
-				    this.opacity = (16 - this._effectDuration) * 16;
 };
+
+
+Rexal.ASVE.seupdatedisappear = Sprite_Enemy.prototype.updateDisappear;
 
 Sprite_Enemy.prototype.updateDisappear = function() {
 		Rexal.ASVE.seupdatedisappear.call(this);
 	    this.setHome(this._homeX-10,this._homeY);
-    this.opacity = 256 - (32 - this._effectDuration) * 10;
 };
+
+
+Sprite_EnemyRex.prototype.updateAppear = function() {
+	Sprite_Enemy.prototype.updateAppear.call(this);
+};
+
+Sprite_EnemyRex.prototype.updateDisappear = function() {
+	Sprite_Enemy.prototype.updateDisappear.call(this);
+};
+
+
 
 Sprite_EnemyRex.prototype.updateCollapse = function() {
 Sprite_Enemy.prototype.updateCollapse.call(this);
@@ -729,7 +740,7 @@ Rexal.ASVE.processEnemyNoteTag = function(obj) {
 Rexal.log('reading ' + obj.name + '...');
 
 obj.motion = 'thrust';
-obj.weaponid = 0;
+obj.weaponid = 1;
 obj.collapse = Rexal.ASVE.DoCollapse;
 obj.breath = [50,5,25];
 obj.scale = 1.0;
