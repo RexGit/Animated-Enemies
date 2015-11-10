@@ -740,7 +740,7 @@ Rexal.ASVE.processEnemyNoteTag = function(obj) {
 Rexal.log('reading ' + obj.name + '...');
 
 obj.motion = 'thrust';
-obj.weaponid = 1;
+obj.weaponid = 0;
 obj.collapse = Rexal.ASVE.DoCollapse;
 obj.breath = [50,5,25];
 obj.scale = 1.0;
